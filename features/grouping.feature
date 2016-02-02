@@ -32,8 +32,8 @@ Feature: Grouping BibTeX Bibliographies
     When I run jekyll
     Then the _site directory should exist
     And the "_site/scholar.html" file should exist
-    Then I should see "<h2 class=\"bibliography\">2007</h2>" in "_site/scholar.html"
-    And I should see "<h2 class=\"bibliography\">2008</h2>" in "_site/scholar.html"
+    Then I should see "<h2 class=\"bibliography\" id=\"2007\">2007</h2>" in "_site/scholar.html"
+    And I should see "<h2 class=\"bibliography\" id=\"2008\">2008</h2>" in "_site/scholar.html"
 
   @tags @grouping
   Scenario: Group Order
@@ -66,7 +66,7 @@ Feature: Grouping BibTeX Bibliographies
     When I run jekyll
     Then the _site directory should exist
     And the "_site/scholar.html" file should exist
-    Then "<h2 class=\"bibliography\">2007</h2>" should come before "<h2 class=\"bibliography\">2008</h2>" in "_site/scholar.html"
+    Then "2007" should come before "2008" in "_site/scholar.html"
 
   @tags @grouping
   Scenario: Reverse Group Order
@@ -99,7 +99,7 @@ Feature: Grouping BibTeX Bibliographies
     When I run jekyll
     Then the _site directory should exist
     And the "_site/scholar.html" file should exist
-    Then "<h2 class=\"bibliography\">2008</h2>" should come before "<h2 class=\"bibliography\">2007</h2>" in "_site/scholar.html"
+    Then "2008" should come before "2007" in "_site/scholar.html"
 
   @tags @grouping
   Scenario: Multi-level Group Order
@@ -328,12 +328,14 @@ Feature: Grouping BibTeX Bibliographies
       ---
       ---
       {% bibliography -f references --group_by none %}
+      {% if page.bibliography_groups %}bibliography_groups{% endif %}
       """
     When I run jekyll
     Then the _site directory should exist
     And the "_site/scholar.html" file should exist
-    Then I should not see "<h2 class=\"bibliography\">2007</h2>" in "_site/scholar.html"
-    And I should not see "<h2 class=\"bibliography\">2008</h2>" in "_site/scholar.html"
+    Then I should not see "<h2[^>]*>2007</h2>" in "_site/scholar.html"
+    And I should not see "<h2[^>]*>2008</h2>" in "_site/scholar.html"
+    And I should not see "bibliography_groups" in "_site/scholar.html"
 
   @tags @grouping
   Scenario: Local grouping override - grouping by year
@@ -366,6 +368,6 @@ Feature: Grouping BibTeX Bibliographies
     When I run jekyll
     Then the _site directory should exist
     And the "_site/scholar.html" file should exist
-    Then I should see "<h2 class=\"bibliography\">2007</h2>" in "_site/scholar.html"
-    And I should see "<h2 class=\"bibliography\">2008</h2>" in "_site/scholar.html"
+    Then I should see "<h2 class=\"bibliography\" id=\"2007\">2007</h2>" in "_site/scholar.html"
+    And I should see "<h2 class=\"bibliography\" id=\"2008\">2008</h2>" in "_site/scholar.html"
     And "2008" should come before "2007" in "_site/scholar.html"

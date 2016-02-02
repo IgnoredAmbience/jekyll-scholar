@@ -44,11 +44,14 @@ module Jekyll
 
         if group?
           groups = group(items)
+          context['page']['bibliography_groups'] = groups
           bibliography = render_groups(groups)
         else
           items = items[offset..max] if limit_entries?
           bibliography = render_items(items)
         end
+
+        context['page']['bibliography_entries'] = items
 
         bibliography
       end
@@ -70,7 +73,8 @@ module Jekyll
               .map do |e|
                 bibhead = content_tag(tags.first || group_tags.last,
                                       group_name(keys.first, e[0]),
-                                      :class => config['bibliography_class'])
+                                      :class => config['bibliography_class'],
+                                      :id => e[0])
                 bibentries = group_renderer(e[1], keys.drop(1), order.drop(1), tags.drop(1))
                 bibhead + "\n" + bibentries
               end

@@ -44,8 +44,10 @@ module Jekyll
 
         if group?
           groups = group(items)
-          context['page']['bibliography_groups'] = groups
           bibliography = render_groups(groups)
+          context['page']['bibliography_groups'] = groups.each do |k,v|
+            groups[k] = group_name(group_keys.first, k)
+          end
         else
           items = items[offset..max] if limit_entries?
           bibliography = render_items(items)

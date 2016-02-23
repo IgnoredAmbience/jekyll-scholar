@@ -252,32 +252,24 @@ module Jekyll
           .flatten
       end
 
-      def group_compare(key,v1,v2)
-        case key
-        when 'type'
-          o1 = type_order.find_index(v1)
-          o2 = type_order.find_index(v2)
-          if o1.nil? && o2.nil?
-            0
-          elsif o1.nil?
-            1
-          elsif o2.nil?
-            -1
-          else
-            o1 <=> o2
-          end
-        else
-          v1 <=> v2
+      def group_compare(key, v1, v2)
+        if key == 'type'
+          v1 = type_order.find_index(v1)
+          v2 = type_order.find_index(v2)
         end
+
+        v1 <=> v2
       end
 
-      def group_value(key,item)
+      def group_value(key, item)
         case key
         when 'type'
           type_aliases[item.type.to_s] || item.type.to_s
         else
           value = item[key]
-          if value.numeric?
+          if value.nil?
+            nil
+          elsif value.numeric?
             value.to_i
           elsif value.date?
             value.to_date
@@ -295,12 +287,14 @@ module Jekyll
           .flatten
       end
 
-      def group_name(key,value)
+      def group_name(key, value)
+        return "" if value.nil?
+
         case key
         when 'type'
           type_names[value] || value.to_s
         when 'month_numeric'
-          month_names[value] || "(unknown)"
+          month_names[value]
         else
           value.to_s
         end

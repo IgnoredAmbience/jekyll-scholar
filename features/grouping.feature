@@ -36,6 +36,45 @@ Feature: Grouping BibTeX Bibliographies
     And I should see "<h2 class=\"bibliography\" id=\"2008\">2008</h2>" in "_site/scholar.html"
 
   @tags @grouping
+  Scenario: Group By Year with missing value
+    Given I have a scholar configuration with:
+      | key      | value             |
+      | group_by | year              |
+    And I have a "_bibliography" directory
+    And I have a file "_bibliography/references.bib":
+      """
+      @book{ruby1,
+        title     = {The Ruby Programming Language},
+        author    = {Flanagan, David and Matsumoto, Yukihiro},
+        year      = {2008},
+        publisher = {O'Reilly Media}
+      }
+      @book{ruby2,
+        title     = {The Ruby Programming Language},
+        author    = {Flanagan, David and Matsumoto, Yukihiro},
+        year      = {2007},
+        publisher = {O'Reilly Media}
+      }
+      @book{smalltalk,
+        title     = {Smalltalk Best Practice Patterns},
+        author    = {Kent Beck},
+        publisher = {Prentice Hall}
+      }
+      """
+    And I have a page "scholar.html":
+      """
+      ---
+      ---
+      {% bibliography -f references %}
+      """
+    When I run jekyll
+    Then the _site directory should exist
+    And the "_site/scholar.html" file should exist
+    Then I should see "<h2 class=\"bibliography\" id=\"2007\">2007</h2>" in "_site/scholar.html"
+    And I should see "<h2 class=\"bibliography\" id=\"2008\">2008</h2>" in "_site/scholar.html"
+    And I should see "smalltalk" in "_site/scholar.html"
+
+  @tags @grouping
   Scenario: Group Order
     Given I have a scholar configuration with:
       | key         | value             |
@@ -137,6 +176,49 @@ Feature: Grouping BibTeX Bibliographies
     And the "_site/scholar.html" file should exist
     Then "March" should come before "November" in "_site/scholar.html"
     And "November" should come before "June" in "_site/scholar.html"
+
+  @tags @grouping
+  Scenario: Multi-level Group Order with missing group keys
+    Given I have a scholar configuration with:
+      | key         | value                |
+      | group_by    | year,month           |
+      | group_order | descending,ascending |
+    And I have a "_bibliography" directory
+    And I have a file "_bibliography/references.bib":
+      """
+      @book{ruby1,
+        title     = {No Year},
+        month     = {nov}
+      }
+      @book{ruby2,
+        title     = {March 08},
+        year      = {2008},
+        month     = {mar}
+      }
+      @book{ruby3,
+        title     = {June 07},
+        year      = {2007},
+        month     = {jun}
+      }
+      @book{ruby4,
+        title     = {No Month 2007},
+        year      = {2007},
+      }
+      """
+    And I have a page "scholar.html":
+      """
+      ---
+      ---
+      {% bibliography -f references %}
+      """
+    When I run jekyll
+    Then the _site directory should exist
+    And the "_site/scholar.html" file should exist
+    Then "No Year" should come before "2008" in "_site/scholar.html"
+    And "2008" should come before "March" in "_site/scholar.html"
+    And "March" should come before "2007" in "_site/scholar.html"
+    And "2007" should come before "No Month" in "_site/scholar.html"
+    And "No Month" should come before "June" in "_site/scholar.html"
 
   @tags @grouping
   Scenario: Group by Type

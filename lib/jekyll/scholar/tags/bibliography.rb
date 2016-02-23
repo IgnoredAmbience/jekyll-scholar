@@ -65,11 +65,22 @@ module Jekyll
             render_items(groupsOrItems)
           else
             groupsOrItems
-              .sort do |e1,e2|
-                if (order.first || group_order.last) =~ /^(desc|reverse)/i
-                  group_compare(keys.first,e2[0],e1[0])
+              .sort do | e1, e2 |
+                k1, k2 = e1[0], e2[0]
+
+                # Ungrouped items always come first
+                if k1.nil? && k2.nil?
+                  0
+                elsif k1.nil?
+                  -1
+                elsif k2.nil?
+                  1
+
+                # User-defined sort order
+                elsif (order.first || group_order.last) =~ /^(desc|reverse)/i
+                  group_compare(keys.first, k2, k1)
                 else
-                  group_compare(keys.first,e1[0],e2[0])
+                  group_compare(keys.first, k1, k2)
                 end
               end
               .map do |e|
